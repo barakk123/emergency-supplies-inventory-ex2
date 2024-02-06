@@ -1,59 +1,45 @@
-const fs = require('fs/promises');
-const { NotFoundError } = require('../errors/errors');
-const path = require('../data-base.json');
+const Supply = require('../models/supply');
+const BadRequestError = require('../errors/BadRequestError');
+const NotFoundError = require('../errors/NotFoundError');
+const ConflictError = require('../errors/ConflictError');
 
 const getAllSupplies = async () => {
-    const data = await fs.readFile(path, "utf8");
-    return await JSON.parse(data);
+    return Supply.find();
 };
 
-const getSupplyByName = async supplyName => {
-    const supplies = await getAllSupplies();
-    const supply = supplies.find(supply => supply.supply_name === supplyName);
+const getSupplyByName = async (name) => {
+    const supply = await Supply.findOne({ supply_name: name });
+    if (!supply) {
+        throw new NotFoundError(`Supply with name ${name} not found`);
+    }
     return supply;
 };
 
-const createSupply = async supply => {
-    const supplies = await getAllSupplies();
-    const newSupply = new EmergencySupplierSession(
-        supply.supply_name,
-        supply.category,
-        supply.unit_price,
-        supply.quantity,
-        supply.expiration_date,
-        supply.supplier,
-        supply.location
-    );
-    supplies.push(newSupply);
-    await saveSupplies(supplies);
-    return newSupply;
-};
-
-const updateSupply = async (supplyName, updatedSupply) => {
-    const supplies = await getAllSupplies();
-    const index = supplies.findIndex(supply => supply.supply_name === supplyName);
-    if (index !== -1) {
-        supplies[index] = {supplyName, ...updatedSupply};
-        await saveSupplies(supplies);
-        return supplies[index];
+const createSupply = async (supplyData) => {
+    try {
+        return await Supply.create(supplyData);
+    } catch (error) {
+        if (error.code === 11000) { // MongoDB duplicate key error code
+            throw new ConflictError('A supply with that name already exists');
+        }
+        throw new BadRequestError(error.message);
     }
-    throw new NotFoundError(`Supply with name ${supplyName} not found`);
 };
 
-const deleteSupply = async supplyName => {
-    const supplies = await getAllSupplies();
-    const index = supplies.findIndex(supply => supply.supply_name === supplyName);
-    if (index!== -1) {
-        const deletedSupply = supplies.splice(index, 1)[0];
-        await saveSupplies(supplies);
-        return deletedSupply;
+const updateSupply = async (name, supplyData) => {
+    const supply = await Supply.findOneAndUpdate({ supply_name: name }, supplyData, { new: true, runValidators: true });
+    if (!supply) {
+        throw new NotFoundError(`Supply with name ${name} not found`);
     }
-    throw new NotFoundError(`Supply with name ${supplyName} not found`);
+    return supply;
 };
 
-const saveSupplies = async supplies => {
-    const data = JSON.stringify(supplies);
-    await fs.writeFile(path, data);
+const deleteSupply = async (name) => {
+    const supply = await Supply.findOneAndDelete({ supply_name: name });
+    if (!supply) {
+        throw new NotFoundError(`Supply with name ${name} not found`);
+    }
+    return supply;
 };
 
 module.exports = {
@@ -61,6 +47,5 @@ module.exports = {
     getSupplyByName,
     createSupply,
     updateSupply,
-    deleteSupply,
-    saveSupplies
+    deleteSupply
 };

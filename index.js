@@ -3,6 +3,8 @@ const cors = require('cors');
 const express = require('express');
 const {connectDB} = require('./db/mongoDB');
 const suppliesRouter = require('./router/suppliesRouter');
+const errorHandler = require('./middleware/errorHandler');
+
 
 // Constants
 const port = process.env.PORT || 3000;
@@ -18,6 +20,8 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use('/supplies', suppliesRouter);
 
+app.use(errorHandler);
+
 // Connect to MongoDB
 connectDB();
 
@@ -25,3 +29,4 @@ connectDB();
 app.listen(port, () => {
     console.log(`Listening on port ${port}`);
 });
+
