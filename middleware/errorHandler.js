@@ -8,7 +8,7 @@ const errorHandler = (error, req, res, next) => {
   let message = error.message || 'Something went wrong';
 
   // Log the error internally
-  console.error(error);
+  //console.error(error);
 
   // Respond to the client
   res.status(status).json({ error: message });

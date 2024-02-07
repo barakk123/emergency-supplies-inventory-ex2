@@ -4,13 +4,21 @@ const NotFoundError = require('../errors/NotFoundError');
 const ConflictError = require('../errors/ConflictError');
 
 const getAllSupplies = async () => {
-    return Supply.find();
+    try {
+        const supplies = await Supply.find();
+        if (!supplies || supplies.length === 0) {
+            throw new NotFoundError('No supplies found');
+        }
+        return supplies;
+    } catch (error) {
+        throw new BadRequestError(error.message);
+    }
 };
 
 const getSupplyByName = async (name) => {
     const supply = await Supply.findOne({ supply_name: name });
     if (!supply) {
-        throw new NotFoundError(`Supply with name ${name} not found`);
+        throw new NotFoundError(`Supply with name: ${name} not found`);
     }
     return supply;
 };
@@ -20,7 +28,7 @@ const createSupply = async (supplyData) => {
         return await Supply.create(supplyData);
     } catch (error) {
         if (error.code === 11000) { // MongoDB duplicate key error code
-            throw new ConflictError('A supply with that name already exists');
+            throw new ConflictError(`A supply with name: ${supplyData.supply_name} already exists`);
         }
         throw new BadRequestError(error.message);
     }

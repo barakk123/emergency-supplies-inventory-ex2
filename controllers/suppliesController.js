@@ -15,7 +15,7 @@ const getAllSupplies = async (req, res, next) => {
 
 const getSupplyByName = async (req, res, next) => {
     try {
-        const supply = await emergencySupplierRepository.getSupplyByName(req.params.name);
+        const supply = await emergencySupplierRepository.getSupplyByName(req.params.supplyName);
         if (!supply) {
             throw new NotFoundError('Supply not found');
         }
@@ -36,7 +36,7 @@ const createSupply = async (req, res, next) => {
 
 const updateSupply = async (req, res, next) => {
     try {
-        const updatedSupply = await emergencySupplierRepository.updateSupply(req.params.name, req.body);
+        const updatedSupply = await emergencySupplierRepository.updateSupply(req.params.supplyName, req.body);
         res.status(200).json(updatedSupply);
     } catch (error) {
         next(error);
@@ -45,7 +45,7 @@ const updateSupply = async (req, res, next) => {
 
 const deleteSupply = async (req, res, next) => {
     try {
-        await emergencySupplierRepository.deleteSupply(req.params.name);
+        await emergencySupplierRepository.deleteSupply(req.params.supplyName);
         res.status(204).send();
     } catch (error) {
         next(error);
