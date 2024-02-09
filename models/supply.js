@@ -12,14 +12,14 @@ const supplySchema = new mongoose.Schema({
     trim: true,
   },
   unit_price: {
-    type: mongoose.Types.Decimal128,
+    type: Number,
     required: true,
-    min: [0, 'Quantity cannot be negative.']
+    min: [0, 'Quantity cannot be negative or string.']
   },
   quantity: {
     type: Number,
     required: true,
-    min: [0, 'Quantity cannot be negative.']
+    min: [0, 'Quantity cannot be negative or string.']
   },
   expiration_date: {
     type: Date,
@@ -35,7 +35,7 @@ const supplySchema = new mongoose.Schema({
     required: true,
     trim: true,
   }
-});
+},{ versionKey: false });
 
 const Supply = mongoose.model('Supply', supplySchema);
 

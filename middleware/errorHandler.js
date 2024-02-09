@@ -1,17 +1,15 @@
-const BadRequestError = require('../errors/BadRequestError');
-const NotFoundError = require('../errors/NotFoundError');
 const ServerError = require('../errors/ServerError');
-const ConflictError = require('../errors/ConflictError');
+
+const { logger } = require('../logger');
 
 const errorHandler = (error, req, res, next) => {
-  let status = error.status || 500;
-  let message = error.message || 'Something went wrong';
+    const status = error.status || ServerError.status;
+    const message = error.message || ServerError.message;
 
-  // Log the error internally
-  //console.error(error);
+    logger.error(`Error: ${message} at ${req.path}`, { status, errorStack: error.stack });
 
-  // Respond to the client
-  res.status(status).json({ error: message });
+    res.status(status).json({ error: message });
+    next();
 };
 
 module.exports = errorHandler;
