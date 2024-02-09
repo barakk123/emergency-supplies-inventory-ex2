@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const suppliesController = require('../controllers/suppliesController');
 
+
 router.get('/', suppliesController.getAllSupplies);
 
 router.get('/:supplyName', suppliesController.getSupplyByName);

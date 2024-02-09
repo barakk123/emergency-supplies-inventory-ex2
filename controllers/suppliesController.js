@@ -1,11 +1,12 @@
 const emergencySupplierRepository = require('../repository/emergencySupplierRep');
 const NotFoundError = require('../errors/NotFoundError');
 const ConflictError = require('../errors/ConflictError');
+const BadRequestError = require('../errors/BadRequestError');
 const { logger } = require('../logger');
 
 // Validate input for create
 const validateSupplyData = (data) => {
-    return data.category && data.unit_price && data.quantity && data.supplier && data.location;
+    return data.category && data.unit_price && data.quantity && data.supplier && data.location && data.supply_name;
 };
 // Validate input for update
 const validateUpdateSupplyData = (data) => {
@@ -27,6 +28,9 @@ const getAllSupplies = async (req, res, next) => {
 
 const getSupplyByName = async (req, res, next) => {
     try {
+        if (!req.params.supplyName || req.params.supplyName.trim() === '' || req.params.supplyName === undefined || req.params.supplyName === null) {
+            throw new BadRequestError('Supply name is required.');
+        }
         const supply = await emergencySupplierRepository.getSupplyByName(req.params.supplyName);
         if (!supply) {
             throw new NotFoundError('Supply not found');
@@ -35,6 +39,9 @@ const getSupplyByName = async (req, res, next) => {
     } catch (error) {
         if (error instanceof NotFoundError) {
             return res.status(404).send(error.message);
+        }
+        if (error instanceof BadRequestError) {
+            return res.status(400).send(error.message);
         }
         next(error);
     }
@@ -68,23 +75,20 @@ const updateSupply = async (req, res, next) => {
         return res.status(400).send('Incomplete data for update.');
     }
     try {
-        // Check for conflict
-        const existingSupplyWithName = await emergencySupplierRepository.getSupplyByName(req.body.supply_name);
-        if (existingSupplyWithName && req.params.supplyName !== req.body.supply_name) {
-            logger.info('Supply with the updated name already exists.');
-            throw new ConflictError('Supply with the updated name already exists.');
-        }
-        // Update supply
         const updatedSupply = await emergencySupplierRepository.updateSupply(req.params.supplyName, req.body);
         if (!updatedSupply) {
             throw new NotFoundError('Supply to update not found.');
+        }
+        if (updatedSupply.supply_name !== req.body.supply_name) {
+            logger.info('Supply with the updated name already exists.');
+            throw new ConflictError('Supply with the updated name already exists.');
         }
         res.status(200).json(updatedSupply);
     } catch (error) {
         if (error instanceof NotFoundError) {
             return res.status(404).send(error.message);
-        } else if (error instanceof ConflictError) {
-            return res.status(409).send(error.message);
+        } if (error instanceof ConflictError) {
+            return res.status(409).send(error.message);   
         }
         next(error);
     }
