@@ -28,7 +28,7 @@ connectDB();
 
 // Listen on the specified port
 app.listen(port, () => {
-    logger.info(`Listening on port ${port}`);
+  logger.info(`Listening on port ${port}`);
 
 });
 

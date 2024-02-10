@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+
 const supplySchema = new mongoose.Schema({
   supply_name: {
     type: String,

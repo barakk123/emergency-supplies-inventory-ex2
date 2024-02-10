@@ -12,6 +12,15 @@ h1 {
     color: red;
 }
 
+.message-success {
+    color: green;
+}
+
+.message-error {
+    color: red;
+}
+
+
 #supplies-list {
     margin-bottom: 20px;
 }
