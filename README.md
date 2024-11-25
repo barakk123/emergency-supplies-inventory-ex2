@@ -1,6 +1,7 @@
-# Emergency Supply Management System
+# Emergency Supply Management System - Backend
 
 A comprehensive Node.js API designed for the efficient management of emergency supplies. Utilizing Express for server-side logic and MongoDB for database management, this system supports robust CRUD operations for emergency supply data, ensuring a highly responsive and reliable platform for crisis management scenarios.
+For the frontend part of this project, please visit [this link](https://github.com/barakk123/emergency-supplies-inventory-ex3)
 
 ## Getting Started
 
